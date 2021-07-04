@@ -6,18 +6,17 @@ import sql_connector
 
 class Case(QDialog):
     def __init__(self):
-        super(Case,self).__init__()
+        super(Case,self).__init__() 
         loadUi("case.ui",self)
         self.new_case.clicked.connect(self.gotoregister)
-        self.old_case.clicked.connect(self.pr)
+        self.old_case.clicked.connect(self.gotosearch)
 
-    def pr(self):
-        print("clicked")
+
+    def gotosearch(self):
+        widget.setCurrentIndex(2)
 
     def gotoregister(self):
-        register = RegisterPatient()
-        widget.addWidget(register)
-        widget.setCurrentIndex(widget.currentIndex() + 1)
+        widget.setCurrentIndex(1)
 
 class RegisterPatient(QDialog):
     def __init__(self):
@@ -26,26 +25,73 @@ class RegisterPatient(QDialog):
         self.nextButton.clicked.connect(self.insertToDatabase)
 
     def insertToDatabase(self):
-        name = self.name.text()
-        phoneno = int(self.phoneno.text())
-        address = self.address.toPlainText()
-        history = self.history.toPlainText()
-
-        try:
-            patient = sql_connector.Patient(name,phoneno,address,history)
-            patient.insertPatient()
-            print("added without any error")
-        except:
-            print("failed to add patient")
         
+        if self.phoneno.text() == '':
+            phoneno = None
+        else:
+            phoneno = int(self.phoneno.text())
 
         
+        if len(self.history.toPlainText() and self.name.text() and self.address.toPlainText()) == 0:
+            print("error")
+        else:
+            name = self.name.text()
+            address = self.address.toPlainText()
+            history = self.history.toPlainText()
+            case = self.N_O.currentText()
+            try:
+                patient = sql_connector.Patient(name,phoneno,address,history,case)
+                patient.insertPatient() 
+                print(patient.p_id)
+            except:
+                print("failed to add patient")
+ 
+        
+class SearchIntoDatabase(QDialog):
+    def __init__(self) :
+        super(SearchIntoDatabase,self).__init__()
+        loadUi("search.ui",self)
+        self.back.clicked.connect(self.gotocase)
+        self.updateDetails.clicked.connect(self.gotoupdate)
+        self.searchButton.clicked.connect(self.search)
+        
+
+    def search(self):
+        details = sql_connector.Patient.getPatient(int(self.id.text()))
+        self.name.setText(details[0]) 
+        self.phoneno.setText(str(details[1]))
+        self.address.setText(details[2])
+
+    def gotocase(self):
+        widget.setCurrentIndex(0)
+
+    def gotoupdate(self):
+        widget.setCurrentIndex(3)
+
+class UpdateIntoDatabase(QDialog):
+    def __init__(self) :
+        super(UpdateIntoDatabase,self).__init__()
+        loadUi("update.ui",self)
 
 
 
-app = QApplication(sys.argv)
-mainwindow = Case()
-widget = QtWidgets.QStackedWidget()
-widget.addWidget(mainwindow)    
-widget.show()
-app.exec_()
+
+
+
+
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    mainwindow = Case()
+    patient = RegisterPatient() 
+    search = SearchIntoDatabase()
+    update = UpdateIntoDatabase()
+    widget = QtWidgets.QStackedWidget()
+    #stacking Ui's
+    widget.addWidget(mainwindow)    # index: 0
+    widget.addWidget(patient)       # index: 1
+    widget.addWidget(search)        # index: 2
+    widget.addWidget(update)        # index: 3 
+
+    widget.show()
+    app.exec_()
