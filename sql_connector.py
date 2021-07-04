@@ -1,3 +1,4 @@
+from datetime import date
 import mysql.connector  
 
 # connecting database
@@ -16,28 +17,36 @@ except:
 
 class Patient:
 
-    def __init__(self,name,phoneno,address,history):
+    def __init__(self,name,phoneno,address,history,case):
         self.name = name
         self.phoneno = phoneno
         self.address = address
         self.history = history
-
+        self.p_id = 0 
+        self.case = case
 
     def insertPatient(self):
         try:    
             args = (self.name,self.phoneno,self.address,self.history)
             mycursor.callproc("insertPatient",args)
+    
+
+            mycursor.execute("SELECT MAX(patient_id) FROM patients")
+            x = mycursor.fetchone()
+            self.p_id = x[0] 
+
+            args = (self.p_id,date.today(),self.case)
+            mycursor.callproc("insertCase",args)
             clinic_db.commit()
+
         except:
             print("error")
 
-    def insertCase(id,date,case):
-        try:    
-            args = (id,date,case)
-            mycursor.callproc("insertCase",args)
-            clinic_db.commit()
-        except:
-            print("error")
+    @classmethod
+    def getPatient(cls,id):
+        mycursor.execute("SELECT name,phoneno,address FROM patients WHERE patient_id = %s",(id,))
+        
+        return mycursor.fetchone()
 
 # def insertAppointment(id,date):
 #     try:    
@@ -70,3 +79,4 @@ class Patient:
 #         print(result)
 #     except:
 #         print("error")
+
