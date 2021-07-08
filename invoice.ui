@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Invoice</string>
   </property>
-  <widget class="QLineEdit" name="lineEdit">
+  <widget class="QLineEdit" name="consulting">
    <property name="geometry">
     <rect>
      <x>350</x>
@@ -77,7 +77,7 @@
     <string>Pending</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="lineEdit_2">
+  <widget class="QLineEdit" name="paid">
    <property name="geometry">
     <rect>
      <x>350</x>
@@ -87,7 +87,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QLineEdit" name="lineEdit_3">
+  <widget class="QLineEdit" name="pending">
    <property name="geometry">
     <rect>
      <x>350</x>
@@ -97,7 +97,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton">
+  <widget class="QPushButton" name="finishButton">
    <property name="geometry">
     <rect>
      <x>310</x>
