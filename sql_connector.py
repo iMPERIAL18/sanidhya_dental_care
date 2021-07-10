@@ -1,5 +1,5 @@
 from datetime import date
-import mysql.connector  
+import mysql.connector 
 from pandas import read_sql_query, DataFrame
 
 # connecting database
@@ -76,15 +76,14 @@ class Patient:
         args = (self.p_id,consulting,paid,pending)
         mycursor.callproc("createInvoice",args)
         clinic_db.commit()
+    
     @classmethod
-    def get_yearlyRevenue(cls):
-        try:    
-            mycursor.execute('SELECT * FROM yearly_revenue')
-            return mycursor.fetchall()
-            
-        except:
-            print("error")
-            
+    def updatePatientDetails(cls,id,name,phoneno,address,history):
+        if phoneno == "None":
+            phoneno = None
+        args = (id,name,phoneno,address,history)
+        mycursor.callproc("updatePatient",args)  
+        clinic_db.commit()
     
 
 def get_dailyRevenue():
@@ -134,13 +133,13 @@ class GetRevenue:
 
     @classmethod
     def custom(cls,date1,date2):
-           
-        sql_query = read_sql_query(f'''SELECT i.invoice_id,p.name,i.payment_date,i.payment AS payment_amount FROM invoices i INNER JOIN patients p ON p.patient_id = i.patient_id WHERE i.payment_date BETWEEN {date1} AND {date2}''',clinic_db) 
+        try:  
+            sql_query = read_sql_query(f"SELECT i.invoice_id,p.name,i.payment_date,i.payment AS payment_amount FROM invoices i INNER JOIN patients p ON p.patient_id = i.patient_id WHERE i.payment_date BETWEEN '{date1}' AND '{date2}'",clinic_db) 
 
-        fileName = "customRevenue" + date.today().strftime("%d%m%Y")        #date1 + to + date2 + date.today().strftime("%d%m%Y")              
+            fileName = date1.strftime("%B %d %Y ") + "to "+ date2.strftime("%B %d %Y") + " Revenue"        #date1 + to + date2 + date.today().strftime("%d%m%Y")              
 
-        df = DataFrame(sql_query)
-        df.to_csv(f"C:/Users/ASUS/Documents/LabVIEW Data/{fileName}.csv", index = False)   # change the path at last
-        
+            df = DataFrame(sql_query)
+            df.to_csv(f"C:/Users/ASUS/Documents/LabVIEW Data/{fileName}.csv", index = False)   # change the path at last
+        except:
+            print("error")    
 
-        
