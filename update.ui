@@ -37,8 +37,11 @@
      <x>220</x>
      <y>210</y>
      <width>481</width>
-     <height>22</height>
+     <height>20</height>
     </rect>
+   </property>
+   <property name="readOnly">
+    <bool>true</bool>
    </property>
   </widget>
   <widget class="QTextEdit" name="address">
@@ -49,6 +52,9 @@
      <width>481</width>
      <height>87</height>
     </rect>
+   </property>
+   <property name="readOnly">
+    <bool>true</bool>
    </property>
   </widget>
   <widget class="QLabel" name="label">
@@ -75,15 +81,24 @@
      <x>220</x>
      <y>160</y>
      <width>481</width>
-     <height>22</height>
+     <height>20</height>
     </rect>
+   </property>
+   <property name="autoFillBackground">
+    <bool>false</bool>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <property name="readOnly">
+    <bool>true</bool>
    </property>
   </widget>
   <widget class="QPushButton" name="updateButton">
    <property name="geometry">
     <rect>
-     <x>470</x>
-     <y>590</y>
+     <x>350</x>
+     <y>540</y>
      <width>221</width>
      <height>28</height>
     </rect>
@@ -119,6 +134,12 @@
      <height>87</height>
     </rect>
    </property>
+   <property name="readOnly">
+    <bool>true</bool>
+   </property>
+   <property name="overwriteMode">
+    <bool>false</bool>
+   </property>
   </widget>
   <widget class="QLabel" name="label_2">
    <property name="geometry">
@@ -138,13 +159,13 @@
     <string>Phone No.</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="name_2">
+  <widget class="QLineEdit" name="id">
    <property name="geometry">
     <rect>
      <x>220</x>
      <y>110</y>
-     <width>481</width>
-     <height>22</height>
+     <width>310</width>
+     <height>20</height>
     </rect>
    </property>
    <property name="text">
@@ -172,14 +193,92 @@
   <widget class="QPushButton" name="searchButton">
    <property name="geometry">
     <rect>
-     <x>220</x>
-     <y>590</y>
-     <width>221</width>
+     <x>570</x>
+     <y>110</y>
+     <width>130</width>
      <height>28</height>
     </rect>
    </property>
    <property name="text">
     <string>Search</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="phoneBox">
+   <property name="geometry">
+    <rect>
+     <x>710</x>
+     <y>210</y>
+     <width>81</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="addressBox">
+   <property name="geometry">
+    <rect>
+     <x>710</x>
+     <y>290</y>
+     <width>81</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="historyBox">
+   <property name="geometry">
+    <rect>
+     <x>710</x>
+     <y>410</y>
+     <width>81</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="backButton">
+   <property name="geometry">
+    <rect>
+     <x>110</x>
+     <y>540</y>
+     <width>221</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Back</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="homeButton">
+   <property name="geometry">
+    <rect>
+     <x>590</x>
+     <y>540</y>
+     <width>221</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Home</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="nameBox">
+   <property name="geometry">
+    <rect>
+     <x>710</x>
+     <y>160</y>
+     <width>81</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
    </property>
   </widget>
  </widget>

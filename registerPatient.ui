@@ -166,9 +166,9 @@
   <widget class="QPushButton" name="nextButton">
    <property name="geometry">
     <rect>
-     <x>490</x>
+     <x>420</x>
      <y>520</y>
-     <width>221</width>
+     <width>150</width>
      <height>28</height>
     </rect>
    </property>
@@ -181,12 +181,25 @@
     <rect>
      <x>250</x>
      <y>520</y>
-     <width>221</width>
+     <width>150</width>
      <height>28</height>
     </rect>
    </property>
    <property name="text">
     <string>Add</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="backButton">
+   <property name="geometry">
+    <rect>
+     <x>590</x>
+     <y>520</y>
+     <width>150</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Back</string>
    </property>
   </widget>
  </widget>
