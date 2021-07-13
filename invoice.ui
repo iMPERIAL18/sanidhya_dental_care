@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>821</width>
-    <height>664</height>
+    <height>667</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -120,6 +120,32 @@
    </property>
    <property name="text">
     <string>Finish</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pendingButton">
+   <property name="geometry">
+    <rect>
+     <x>450</x>
+     <y>430</y>
+     <width>161</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Pending Amount</string>
+   </property>
+  </widget>
+  <widget class="QRadioButton" name="autofillButton">
+   <property name="geometry">
+    <rect>
+     <x>530</x>
+     <y>310</y>
+     <width>95</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Autofill</string>
    </property>
   </widget>
  </widget>
