@@ -47,7 +47,12 @@ class Patient:
         mycursor.callproc("insertCase",args)
         clinic_db.commit()
 
+    def getPatientId(self):
+        return self.p_id
     
+    def getPatientName(self):
+        return self.name
+
     def insertXray(self,address):    
         args = (self.p_id,address,date.today())
         mycursor.callproc("insertXray",args)
@@ -85,15 +90,12 @@ class Patient:
         mycursor.callproc("updatePatient",args)  
         clinic_db.commit()
     
-
-def get_dailyRevenue():
-    try:    
-        mycursor.execute('SELECT * FROM daily_revenue')
-        result = mycursor.fetchall()
-        print(result)
-    except:
-        print("error")
-
+    
+    def get_amount(self):
+            
+        mycursor.callproc("get_pending_amount",(self.p_id,))
+        for result in mycursor.stored_results():
+            return result.fetchone()[0]
 class GetRevenue:
     @classmethod
     def get_monthlyRevenue(cls):
@@ -142,4 +144,3 @@ class GetRevenue:
             df.to_csv(f"C:/Users/ASUS/Documents/LabVIEW Data/{fileName}.csv", index = False)   # change the path at last
         except:
             print("error")    
-
