@@ -1,7 +1,9 @@
+from os import error
 import sys
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QCalendarWidget, QCheckBox, QDialog, QApplication, QFileDialog
+from PyQt5.QtGui import QIntValidator
+from PyQt5.QtWidgets import QCalendarWidget, QCheckBox, QDialog, QApplication, QFileDialog, QMessageBox
 from PyQt5.uic import loadUi
 import sql_connector
 patient = 0
@@ -25,7 +27,7 @@ class Case(QDialog):
         loadUi("case.ui",self)
         self.new_case.clicked.connect(self.gotoregister)
         self.old_case.clicked.connect(self.gotosearch)
-
+        self.homeButton.clicked.connect(self.gotohome)
      
     def gotosearch(self):
         
@@ -34,6 +36,9 @@ class Case(QDialog):
     def gotoregister(self):
         
         widget.setCurrentIndex(1)
+
+    def gotohome(self):
+        widget.setCurrentIndex(0)
 
 class RegisterPatient(QDialog):
     
@@ -44,34 +49,52 @@ class RegisterPatient(QDialog):
         self.addButton.clicked.connect(self.insertToDatabase)
         self.nextButton.clicked.connect(self.xray)
         self.backButton.clicked.connect(self.gotocase)
+        validator = QIntValidator()
+        self.phoneno.setValidator(validator)
         
 
 
     def insertToDatabase(self):
-        
-        if self.phoneno.text() == '':
-            phoneno = None
-        else:
-            try:
-                phoneno = int(self.phoneno.text())
-            except:
-                print("cant convert to integer")
-        
+    
         if len(self.history.toPlainText() and self.name.text() and self.address.toPlainText()) == 0:
-            print("error")
+            msg = QMessageBox()
+            msg.setWindowTitle("")
+            msg.setText("Name or History or Address cannot be empty")
+            msg.setIcon(QMessageBox.Warning)
+
+            x = msg.exec_()
         else:
+            if self.phoneno.text() == '':
+                phoneno = None
+            else:
+                phoneno = self.phoneno.text()
             name = self.name.text()
             address = self.address.toPlainText()
             history = self.history.toPlainText()
             case = self.N_O.currentText()
             try:
+                if len(phoneno) < 10: 
+                    raise ValueError 
                 global patient 
-                patientToRegister = sql_connector.Patient(name,phoneno,address,history,case)
-                patientToRegister.insertPatient() 
-                patient = patientToRegister
+                patient = sql_connector.Patient(name,phoneno,address,history,case)
+                patient.insertPatient()
+                msg = QMessageBox()
+                msg.setWindowTitle("added to Database")
+                msg.setText(f"Patient ID: {patient.p_id}")
+                msg.setIcon(QMessageBox.Information)
+
+                msg.buttonClicked.connect(self.xray)
+
+                x = msg.exec_()
   
-            except:
-                print("failed to add patient")
+            except ValueError:
+                msg = QMessageBox()
+                msg.setWindowTitle("")
+                msg.setText("Check the Phone Number")
+                msg.setIcon(QMessageBox.Information)
+
+                x = msg.exec_()
+
             
         
     def xray(self):
@@ -90,6 +113,10 @@ class RegisterPatient(QDialog):
         self.history.clear()
         self.phoneno.clear()
         widget.setCurrentIndex(7)
+
+    # def popup(self,i):
+    #     print(i.text())
+
 
 class SearchIntoDatabase(QDialog):
     
@@ -116,16 +143,34 @@ class SearchIntoDatabase(QDialog):
             
             
             
-        except:
-            print("sserror")
+        except TypeError:
+            msg = QMessageBox()
+            msg.setWindowTitle("Not Found")
+            msg.setText("Patient not found")
+            msg.setIcon(QMessageBox.Warning)
+            self.name.clear()
+            self.phoneno.clear()
+            self.address.clear()
+            x = msg.exec_()
+            
+        except ValueError:
+            msg = QMessageBox()
+            msg.setWindowTitle("Value error")
+            msg.setText("Please Enter Number")
+            msg.setIcon(QMessageBox.Warning)
+            self.name.clear()
+            self.phoneno.clear()
+            self.address.clear()
+            x = msg.exec_()
+
+        
 
     def getPatient(self):
         global patient
-        patientToSearch = sql_connector.Patient(self.details[1],self.details[2],self.details[3],self.details[4],self.N_O.currentText())
-        patientToSearch.p_id = self.id.text()
-        print(patientToSearch.p_id)
-        patientToSearch.insertCase()
-        patient = patientToSearch
+        patient = sql_connector.Patient(self.details[1],self.details[2],self.details[3],self.details[4],self.N_O.currentText())
+        patient.p_id = self.id.text()
+        print(patient.p_id)
+        patient.insertCase()
         print(self.N_O.currentText())
 
     def gotocase(self):
@@ -168,11 +213,13 @@ class Xray(QDialog):
         self.browseButton.clicked.connect(self.openFileDialog)
         self.addButton.clicked.connect(self.addtoDatabase)
         self.nextButton.clicked.connect(self.gotoappointment)
+        self.skipButton.clicked.connect(self.gotoappointment)
 
         
 
     def openFileDialog(self):
-        img = QFileDialog.getOpenFileNames()
+        dlg = QFileDialog()
+        img = dlg.getOpenFileNames(self,filter = "Image (*jpg *png)",directory= r'D:\Hemin')
         if img[0] != []:
             self.address = img[0][0]
             self.path.setText(self.address)
@@ -190,7 +237,7 @@ class Xray(QDialog):
 
     def gotoappointment(self):
         self.path.clear()
-        widget.setCurrentIndex(5)
+        widget.setCurrentIndex(5)   
         
 class UpdateIntoDatabase(QDialog):
     def __init__(self) :
@@ -203,9 +250,16 @@ class UpdateIntoDatabase(QDialog):
         self.historyBox.stateChanged.connect(self.historycheckBoxChanged)
         self.searchButton.clicked.connect(self.searchPatient)
         self.updateButton.clicked.connect(self.updatePatient)
+        self.homeButton.clicked.connect(self.gotohome)
+        validator = QIntValidator()
+        self.phoneno.setValidator(validator)
+        self.id.setValidator(validator)
 
     def gotosearch(self):
         widget.setCurrentIndex(2)
+
+    def gotohome(self):
+        widget.setCurrentIndex(0)
         
     def namecheckBoxChanged(self,state):
         if state == Qt.Checked:
@@ -232,19 +286,41 @@ class UpdateIntoDatabase(QDialog):
             self.history.setReadOnly(True)
 
     def searchPatient(self):
-        self.details = sql_connector.Patient.getPatient(int(self.id.text()))
-        self.name.setText(self.details[1]) 
-        self.phoneno.setText(str(self.details[2]))
-        self.address.setText(self.details[3])
-        self.history.setText(self.details[4])
+        try:
+            self.details = sql_connector.Patient.getPatient(int(self.id.text()))
+            self.name.setText(self.details[1]) 
+            self.phoneno.setText(str(self.details[2]))
+            self.address.setText(self.details[3])
+            self.history.setText(self.details[4])
         
+        except TypeError:
+            msg = QMessageBox()
+            msg.setWindowTitle("Not Found")
+            msg.setText("Patient not found")
+            msg.setIcon(QMessageBox.Warning)
+            x = msg.exec_()
+            
+        except ValueError:
+            msg = QMessageBox()
+            msg.setWindowTitle("Value error")
+            msg.setText("Please Enter Number")
+            msg.setIcon(QMessageBox.Warning)
+            x = msg.exec_()
 
-    def updatePatient(self):
-        
-        
-        sql_connector.Patient.updatePatientDetails(self.id.text(),self.name.text(),self.phoneno.text(),self.address.toPlainText(),self.history.toPlainText()) 
-        print("updated")
-
+    def updatePatient(self): 
+        try:
+            sql_connector.Patient.updatePatientDetails(self.id.text(),self.name.text(),self.phoneno.text(),self.address.toPlainText(),self.history.toPlainText()) 
+            msg = QMessageBox()
+            msg.setWindowTitle("UPDATED")
+            msg.setText("Patient Inforamtion has been updated")
+            msg.setIcon(QMessageBox.Information)
+            x = msg.exec_()
+        except:
+            msg = QMessageBox()
+            msg.setWindowTitle("Error")
+            msg.setText("Something Went Wrong")
+            msg.setIcon(QMessageBox.Information)
+            x = msg.exec_()
     
 class Appointment(QDialog):
     def __init__(self):
@@ -253,6 +329,7 @@ class Appointment(QDialog):
         self.calander = self.findChild(QCalendarWidget, "calanderWidget")
         self.addButton.clicked.connect(self.bookAppointment)
         self.nextButton.clicked.connect(self.gotoinvoice)
+        self.skipButton.clicked.connect(self.gotoinvoice)
 
     def bookAppointment(self):
         date = self.calander.selectedDate().toPyDate()
@@ -261,26 +338,89 @@ class Appointment(QDialog):
         print("done")
 
     def gotoinvoice(self):
+        # createInvoice.patientLabel.setText(f"Patient ID: {patient.getPatientId()}")
         # self.calander.setCurrentPage(2021,7)
         widget.setCurrentIndex(6)
         
 class createInvoice(QDialog):
     def __init__(self) :
+        # global patient
         super(createInvoice,self).__init__()
         loadUi("invoice.ui",self)
         self.finishButton.clicked.connect(self.invoice)
-        
+        # self.patientLabel.setText(f"Patient ID: {patient.getPatientId()}")
+        self.pendingButton.clicked.connect(self.get_amount)
+        self.autofillButton.toggled.connect(self.autofill)
+        validator = QIntValidator()
+        self.consulting.setValidator(validator)
+        self.pending.setValidator(validator)
+        self.paid.setValidator(validator)
 
     def invoice(self):
-        global patient
-        patient.createInvoice(self.consulting.text(),self.paid.text(),self.pending.text())
-        print("done")
-        patient = 0
-        self.consulting.clear()
-        self.paid.clear()
-        self.pending.clear()
-        widget.setCurrentIndex(7)
+        try:
+            global patient
+            patient.createInvoice(self.consulting.text(),self.paid.text(),self.pending.text())
+            print("done")
+            patient = 0
+            self.consulting.clear()
+            self.paid.clear()
+            self.pending.clear()
+            widget.setCurrentIndex(7)
+        except:
+            msg = QMessageBox()
+            msg.setWindowTitle("Error")
+            msg.setText("Something Went Wrong")
+            msg.setIcon(QMessageBox.Information)
+            x = msg.exec_()
+    
+            
 
+    def get_amount(self):
+        
+        try:
+            msg = QMessageBox()
+            msg.setWindowTitle("Pending")
+            msg.setText(f'''
+            Patient ID: {patient.getPatientId()}
+
+            Patient Name: {patient.getPatientName()}
+            
+            Pending Amount: {patient.get_amount()}
+            ''')
+            msg.setIcon(QMessageBox.Information)
+            x = msg.exec_()
+        except TypeError:
+            msg = QMessageBox()
+            msg.setWindowTitle("Pending")
+            msg.setText("Pending Amount: 0")
+            msg.setIcon(QMessageBox.Information)
+            x = msg.exec_()
+            
+    def autofill(self):
+        try:
+            if self.autofillButton.isChecked():
+                self.paid.setReadOnly(True)
+                self.pending.setReadOnly(True)
+                paid = int(self.paid.text())
+                pending = patient.get_amount() - paid 
+                self.pending.setText(f"{pending}")
+            else:
+                self.paid.setReadOnly(False)
+                self.pending.setReadOnly(False)
+                self.pending.setText("")
+        except ValueError:
+            msg = QMessageBox()
+            msg.setWindowTitle("Pending")
+            msg.setText("Paid Amount is empty")
+            msg.setIcon(QMessageBox.Information)
+            x = msg.exec_()
+        except TypeError:
+            msg = QMessageBox()
+            msg.setWindowTitle("")
+            msg.setText("No Pending Amount")
+            msg.setIcon(QMessageBox.Information)
+            x = msg.exec_()
+            
 class Revenue(QDialog):
     def __init__(self) :
         super(Revenue,self).__init__()
@@ -330,6 +470,8 @@ class CustomRev(QDialog):
 
     def gotohome(self):
         widget.setCurrentIndex(0)
+
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     mainwindow = Main()
@@ -358,4 +500,3 @@ if __name__ == "__main__":
     widget.setFixedWidth(1200)
     widget.show()
     app.exec_()
-
