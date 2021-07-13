@@ -60,9 +60,9 @@
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>260</x>
-      <y>100</y>
-      <width>101</width>
+      <x>280</x>
+      <y>70</y>
+      <width>71</width>
       <height>51</height>
      </rect>
     </property>
@@ -72,20 +72,7 @@
      </font>
     </property>
     <property name="text">
-     <string>Patient</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="homeButton">
-    <property name="geometry">
-     <rect>
-      <x>270</x>
-      <y>260</y>
-      <width>93</width>
-      <height>28</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Home</string>
+     <string>Case</string>
     </property>
    </widget>
   </widget>
