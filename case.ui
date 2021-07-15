@@ -19,6 +19,10 @@
   <property name="windowTitle">
    <string>Case</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>001.png</normaloff>001.png</iconset>
+  </property>
   <widget class="QGroupBox" name="groupBox">
    <property name="geometry">
     <rect>
@@ -73,6 +77,19 @@
     </property>
     <property name="text">
      <string>Case</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="homeButton">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>260</y>
+      <width>93</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Home</string>
     </property>
    </widget>
   </widget>

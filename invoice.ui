@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Invoice</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>001.png</normaloff>001.png</iconset>
+  </property>
   <widget class="QLineEdit" name="consulting">
    <property name="geometry">
     <rect>

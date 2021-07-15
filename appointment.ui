@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Next Appointment</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>001.png</normaloff>001.png</iconset>
+  </property>
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
@@ -65,6 +69,19 @@
    </property>
    <property name="text">
     <string>Next</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="skipButton">
+   <property name="geometry">
+    <rect>
+     <x>530</x>
+     <y>450</y>
+     <width>110</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Skip</string>
    </property>
   </widget>
  </widget>

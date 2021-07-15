@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Custom Revenue</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>001.png</normaloff>001.png</iconset>
+  </property>
   <widget class="QPushButton" name="generate">
    <property name="geometry">
     <rect>

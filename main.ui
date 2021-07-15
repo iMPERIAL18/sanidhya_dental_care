@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>001.png</normaloff>001.png</iconset>
+  </property>
   <widget class="QPushButton" name="revenue">
    <property name="geometry">
     <rect>
@@ -50,6 +54,19 @@
    </property>
    <property name="text">
     <string>Report</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="appointments">
+   <property name="geometry">
+    <rect>
+     <x>190</x>
+     <y>120</y>
+     <width>240</width>
+     <height>28</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Appointments</string>
    </property>
   </widget>
  </widget>

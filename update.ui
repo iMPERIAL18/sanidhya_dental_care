@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Update</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>001.png</normaloff>001.png</iconset>
+  </property>
   <widget class="QLabel" name="label_4">
    <property name="geometry">
     <rect>

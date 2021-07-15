@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>001.png</normaloff>001.png</iconset>
+  </property>
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
@@ -132,6 +136,9 @@
      <height>87</height>
     </rect>
    </property>
+   <property name="tabChangesFocus">
+    <bool>true</bool>
+   </property>
   </widget>
   <widget class="QTextEdit" name="history">
    <property name="geometry">
@@ -141,6 +148,9 @@
      <width>481</width>
      <height>87</height>
     </rect>
+   </property>
+   <property name="tabChangesFocus">
+    <bool>true</bool>
    </property>
   </widget>
   <widget class="QComboBox" name="N_O">
@@ -162,19 +172,6 @@
      <string>O</string>
     </property>
    </item>
-  </widget>
-  <widget class="QPushButton" name="nextButton">
-   <property name="geometry">
-    <rect>
-     <x>420</x>
-     <y>520</y>
-     <width>150</width>
-     <height>28</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Next</string>
-   </property>
   </widget>
   <widget class="QPushButton" name="addButton">
    <property name="geometry">
