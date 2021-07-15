@@ -1,25 +1,42 @@
-from os import error
-import sys
+# import time 
+# start = time.time()
+
+# BG: Light Blue Font COlor: Black
+# xray fees
+
+
+from sys import argv
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIntValidator
-from PyQt5.QtWidgets import QCalendarWidget, QCheckBox, QDialog, QApplication, QFileDialog, QMessageBox
+from PyQt5.QtGui import QIntValidator, QIcon
+from PyQt5.QtWidgets import QCalendarWidget, QCheckBox, QDialog, QApplication, QFileDialog, QMessageBox, QTableWidgetItem
 from PyQt5.uic import loadUi
 import sql_connector
+from os import system
+
 patient = 0
 
 class Main(QDialog):
     def __init__(self):
         super(Main,self).__init__() 
         loadUi("main.ui",self)
+        icon = '001.png'
+        self.setWindowIcon(QIcon(icon))
         self.revenue.clicked.connect(self.gotorevenue)
         self.case_2.clicked.connect(self.gotocase)
+        self.appointments.clicked.connect(self.gotoshow)
+        
+
+        
     
     def gotorevenue(self):
         widget.setCurrentIndex(8)
         
     def gotocase(self):
         widget.setCurrentIndex(7)
+
+    def gotoshow(self):
+        widget.setCurrentIndex(10)
    
 class Case(QDialog):
     def __init__(self):
@@ -47,7 +64,6 @@ class RegisterPatient(QDialog):
         super(RegisterPatient,self).__init__()
         loadUi("registerPatient.ui", self)
         self.addButton.clicked.connect(self.insertToDatabase)
-        self.nextButton.clicked.connect(self.xray)
         self.backButton.clicked.connect(self.gotocase)
         validator = QIntValidator()
         self.phoneno.setValidator(validator)
@@ -166,12 +182,15 @@ class SearchIntoDatabase(QDialog):
         
 
     def getPatient(self):
-        global patient
-        patient = sql_connector.Patient(self.details[1],self.details[2],self.details[3],self.details[4],self.N_O.currentText())
-        patient.p_id = self.id.text()
-        print(patient.p_id)
-        patient.insertCase()
-        print(self.N_O.currentText())
+        try:
+            global patient
+            patient = sql_connector.Patient(self.details[1],self.details[2],self.details[3],self.details[4],self.N_O.currentText())
+            patient.p_id = self.id.text()
+            print(patient.p_id)
+            patient.insertCase()
+            print(self.N_O.currentText())
+        except AttributeError:
+            print("something Went Wrong")
 
     def gotocase(self):
         self.id.clear()
@@ -392,7 +411,12 @@ class createInvoice(QDialog):
         except TypeError:
             msg = QMessageBox()
             msg.setWindowTitle("Pending")
-            msg.setText("Pending Amount: 0")
+            msg.setText(f'''
+            Patient ID: {patient.getPatientId()}
+
+            Patient Name: {patient.getPatientName()}
+            
+            Pending Amount: 0''')
             msg.setIcon(QMessageBox.Information)
             x = msg.exec_()
             
@@ -409,17 +433,22 @@ class createInvoice(QDialog):
                 self.pending.setReadOnly(False)
                 self.pending.setText("")
         except ValueError:
+            
             msg = QMessageBox()
             msg.setWindowTitle("Pending")
             msg.setText("Paid Amount is empty")
-            msg.setIcon(QMessageBox.Information)
+            msg.setIcon(QMessageBox.Information) 
             x = msg.exec_()
+            self.autofillButton.setChecked(False)
         except TypeError:
+            	
+            self.autofillButton.setChecked(False)
             msg = QMessageBox()
             msg.setWindowTitle("")
-            msg.setText("No Pending Amount")
+            msg.setText("No Pending Amount Found")
             msg.setIcon(QMessageBox.Information)
             x = msg.exec_()
+            self.autofillButton.setChecked(False)
             
 class Revenue(QDialog):
     def __init__(self) :
@@ -432,16 +461,45 @@ class Revenue(QDialog):
         self.homeButton.clicked.connect(self.gotohome)
 
     def dailyRev(self):
-        sql_connector.GetRevenue.get_dailyRevenue()
-        print("generated")
+        url = sql_connector.GetRevenue()
+        url = url.get_dailyRevenue()
+        msg = QMessageBox()
+        msg.setWindowTitle("")
+        msg.setText("Daily Revenue has been Generated")
+        msg.setIcon(QMessageBox.Information)
+        openFile = msg.addButton('Open File',QMessageBox.YesRole)
+        msg.setStandardButtons(QMessageBox.Cancel)
+        x = msg.exec_()
+        if msg.clickedButton() == openFile:
+            system(url)
 
     def monthlyRev(self):
-        sql_connector.GetRevenue.get_monthlyRevenue()
-        print("generated")
+        url = sql_connector.GetRevenue()
+        url = url.get_monthlyRevenue()
+        msg = QMessageBox()
+        msg.setWindowTitle("")
+        msg.setText("Monthly Revenue has been Generated")
+        msg.setIcon(QMessageBox.Information)
+        openFile = msg.addButton('Open File',QMessageBox.YesRole)
+        msg.setStandardButtons(QMessageBox.Cancel)
+        x = msg.exec_()
+        if msg.clickedButton() == openFile:
+            system(url)
 
     def yearlyRev(self):
-        sql_connector.GetRevenue.get_yearlyRevenue()
-        print("generated")
+        url = sql_connector.GetRevenue()
+        url = url.get_yearlyRevenue()
+        msg = QMessageBox()
+        msg.setWindowTitle("")
+        msg.setText("Yearly Revenue has been Generated")
+        msg.setIcon(QMessageBox.Information)
+        openFile = msg.addButton('Open File',QMessageBox.YesRole)
+        msg.setStandardButtons(QMessageBox.Cancel)
+        x = msg.exec_()
+        if msg.clickedButton() == openFile:
+            system(url)
+
+        
 
     def gotocustomRev(self):
         widget.setCurrentIndex(9)
@@ -462,18 +520,77 @@ class CustomRev(QDialog):
     def generateRev(self):
         date1 = self.calander1.selectedDate().toPyDate()
         date2 = self.calander2.selectedDate().toPyDate()
-        sql_connector.GetRevenue.custom(date1, date2)
-        print("generated")
+        url = sql_connector.GetRevenue()
+        url = url.custom(date1, date2)
+        msg = QMessageBox()
+        msg.setWindowTitle("")
+        msg.setText("Yearly Revenue has been Generated")
+        msg.setIcon(QMessageBox.Information)
+        openFile = msg.addButton('Open File',QMessageBox.YesRole)
+        msg.setStandardButtons(QMessageBox.Cancel)
+        x = msg.exec_()
+        if msg.clickedButton() == openFile:
+            system(url)
+
 
     def gotorev(self):
         widget.setCurrentIndex(8)
 
     def gotohome(self):
         widget.setCurrentIndex(0)
+class ShowAppointment(QDialog):
+    def __init__(self):
+        super(ShowAppointment,self).__init__() 
+        loadUi("showAppointments.ui",self)
+        self.today.clicked.connect(self.todayAppointment)
+        self.tmr.clicked.connect(self.tmrAppointment)
+        self.homeButton.clicked.connect(self.gotohome)
+        
+
+    def todayAppointment(self):
+        values = sql_connector.Appointment()
+        values = values.todaysAppointment()
+
+        row = 0
+        self.tableWidget.setRowCount(len(values))
+        # for i in range(len(values)):
+        #     for j in range(4):
+        #         self.tableWidget.setItem(i, j, QTableWidgetItem(str(values[i][j]))) 
+
+        for value in values:
+            self.tableWidget.setItem(row,0,QTableWidgetItem(str(value[0])))
+            self.tableWidget.setItem(row,1,QTableWidgetItem(str(value[1])))
+            self.tableWidget.setItem(row,2,QTableWidgetItem(str(value[2])))
+            self.tableWidget.setItem(row,3,QTableWidgetItem(str(value[3])))
+            row += 1
+
+
+        # Resize of the rows and columns based on the content
+        self.tableWidget.resizeColumnsToContents()
+        self.tableWidget.resizeRowsToContents()
+
+        self.tableWidget.show()
+
+    def tmrAppointment(self):
+        values = sql_connector.Appointment()
+        values = values.tmrAppointment()
+        row = 0
+        self.tableWidget.setRowCount(len(values))
+        for value in values:
+            self.tableWidget.setItem(row,0,QTableWidgetItem(str(value[0])))
+            self.tableWidget.setItem(row,1,QTableWidgetItem(str(value[1])))
+            self.tableWidget.setItem(row,2,QTableWidgetItem(str(value[2])))
+            self.tableWidget.setItem(row,3,QTableWidgetItem(str(value[3])))
+            row += 1
+    
+    def gotohome(self):
+        self.tableWidget.clear()
+        widget.setCurrentIndex(0)
+
 
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
+    app = QApplication(argv)
     mainwindow = Main()
     case = Case()
     patient = RegisterPatient() 
@@ -485,6 +602,7 @@ if __name__ == "__main__":
     widget = QtWidgets.QStackedWidget()
     revenue = Revenue()
     custom = CustomRev()
+    show = ShowAppointment()
     #stacking Ui's
     widget.addWidget(mainwindow)    # index: 0   
     widget.addWidget(patient)       # index: 1
@@ -496,7 +614,10 @@ if __name__ == "__main__":
     widget.addWidget(case)          # index: 7
     widget.addWidget(revenue)       # index: 8
     widget.addWidget(custom)        # index: 9
+    widget.addWidget(show)          # index: 10
     widget.setFixedHeight(800)
     widget.setFixedWidth(1200)
     widget.show()
     app.exec_()
+    # end = time.time()
+    # print(end - start)
