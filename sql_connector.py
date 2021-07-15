@@ -97,72 +97,50 @@ class Patient:
         for result in mycursor.stored_results():
             return result.fetchone()[0]
 class GetRevenue:
+    @classmethod
     def get_monthlyRevenue(cls):
         try:    
             sql_query = read_sql_query("SELECT * FROM monthly_revenue",clinic_db) 
 
             fileName = "monthlyRevenue" + date.today().strftime("%d%m%Y")               
 
-            filePath = f"D:/H/{fileName}.csv"
             df = DataFrame(sql_query)
-            df.to_csv(filePath, index = False)   # change the path at last
-
-            return filePath
+            df.to_csv(f"C:/Users/ASUS/Documents/LabVIEW Data/{fileName}.csv", index = False)   # change the path at last
         except:
             print("error")
 
-    
-    def get_dailyRevenue(self):
+    @classmethod
+    def get_dailyRevenue(cls):
         try:    
             sql_query = read_sql_query("SELECT * FROM daily_revenue",clinic_db) 
 
-            fileName = "dailyRevenue" + date.today().strftime("%d%m%Y")
-
-            filePath = f"D:/H/{fileName}.csv"                
+            fileName = "dailyRevenue" + date.today().strftime("%d%m%Y")               
 
             df = DataFrame(sql_query)
-            df.to_csv(filePath, index = False)   # change the path at last
-
-            return filePath
+            df.to_csv(f"C:/Users/ASUS/Documents/LabVIEW Data/{fileName}.csv", index = False)   # change the path at last
         except:
             print("error")
 
-
+    @classmethod
     def get_yearlyRevenue(cls):
         try:    
             sql_query = read_sql_query("SELECT * FROM yearly_revenue",clinic_db) 
 
             fileName = "yearlyRevenue" + date.today().strftime("%d%m%Y")               
-            filePath = f"D:/H/{fileName}.csv"  
-            df = DataFrame(sql_query)
-            df.to_csv(filePath, index = False)   # change the path at last
 
-            return filePath
+            df = DataFrame(sql_query)
+            df.to_csv(f"C:/Users/ASUS/Documents/LabVIEW Data/{fileName}.csv", index = False)   # change the path at last
         except:
             print("error")
 
-   
+    @classmethod
     def custom(cls,date1,date2):
         try:  
             sql_query = read_sql_query(f"SELECT i.invoice_id,p.name,i.payment_date,i.payment AS payment_amount FROM invoices i INNER JOIN patients p ON p.patient_id = i.patient_id WHERE i.payment_date BETWEEN '{date1}' AND '{date2}'",clinic_db) 
 
-            fileName = date1.strftime("%B%d%Y") + "to"+ date2.strftime("%B%d%Y") + "Revenue"        #date1 + to + date2 + date.today().strftime("%d%m%Y")              
-            filePath = f"D:/H/{fileName}.csv"  
+            fileName = date1.strftime("%B %d %Y ") + "to "+ date2.strftime("%B %d %Y") + " Revenue"        #date1 + to + date2 + date.today().strftime("%d%m%Y")              
+
             df = DataFrame(sql_query)
-            df.to_csv(filePath, index = False)   # change the path at last
-
-            return filePath
+            df.to_csv(f"C:/Users/ASUS/Documents/LabVIEW Data/{fileName}.csv", index = False)   # change the path at last
         except:
-            print("error") 
-
-class Appointment:
-    def todaysAppointment(self):
-        mycursor.execute("SELECT * FROM todays_appointment")
-
-        return mycursor.fetchall()
-
-    
-    def tmrAppointment(self):
-        mycursor.execute("SELECT * FROM tmr_appointment")
-
-        return mycursor.fetchall()
+            print("error")    
