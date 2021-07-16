@@ -1,9 +1,9 @@
-# import time 
-# start = time.time()
+
 
 # BG: Light Blue Font COlor: Black
 # xray fees
-
+# import time 
+# start = time.time()
 
 from sys import argv
 from PyQt5 import QtWidgets
@@ -12,7 +12,9 @@ from PyQt5.QtGui import QIntValidator, QIcon
 from PyQt5.QtWidgets import QCalendarWidget, QCheckBox, QDialog, QApplication, QFileDialog, QMessageBox, QTableWidgetItem
 from PyQt5.uic import loadUi
 import sql_connector
-from os import system
+from os import startfile, system
+
+
 
 patient = 0
 
@@ -25,6 +27,7 @@ class Main(QDialog):
         self.revenue.clicked.connect(self.gotorevenue)
         self.case_2.clicked.connect(self.gotocase)
         self.appointments.clicked.connect(self.gotoshow)
+        self.report.clicked.connect(self.gotoreport)
         
 
         
@@ -37,6 +40,11 @@ class Main(QDialog):
 
     def gotoshow(self):
         widget.setCurrentIndex(10)
+
+    def gotoreport(self):
+        widget.setCurrentIndex(11)
+
+    
    
 class Case(QDialog):
     def __init__(self):
@@ -56,6 +64,9 @@ class Case(QDialog):
 
     def gotohome(self):
         widget.setCurrentIndex(0)
+
+
+## register patient using below class 
 
 class RegisterPatient(QDialog):
     
@@ -378,12 +389,13 @@ class createInvoice(QDialog):
     def invoice(self):
         try:
             global patient
-            patient.createInvoice(self.consulting.text(),self.paid.text(),self.pending.text())
+            patient.createInvoice(self.consulting.text(),self.xray.text(),self.paid.text(),self.pending.text())
             print("done")
             patient = 0
             self.consulting.clear()
             self.paid.clear()
             self.pending.clear()
+            self.xray.clear()
             widget.setCurrentIndex(7)
         except:
             msg = QMessageBox()
@@ -442,7 +454,7 @@ class createInvoice(QDialog):
             self.autofillButton.setChecked(False)
         except TypeError:
             	
-            self.autofillButton.setChecked(False)
+
             msg = QMessageBox()
             msg.setWindowTitle("")
             msg.setText("No Pending Amount Found")
@@ -471,6 +483,7 @@ class Revenue(QDialog):
         msg.setStandardButtons(QMessageBox.Cancel)
         x = msg.exec_()
         if msg.clickedButton() == openFile:
+            startfile(url)
             system(url)
 
     def monthlyRev(self):
@@ -484,6 +497,7 @@ class Revenue(QDialog):
         msg.setStandardButtons(QMessageBox.Cancel)
         x = msg.exec_()
         if msg.clickedButton() == openFile:
+            startfile(url)
             system(url)
 
     def yearlyRev(self):
@@ -497,6 +511,7 @@ class Revenue(QDialog):
         msg.setStandardButtons(QMessageBox.Cancel)
         x = msg.exec_()
         if msg.clickedButton() == openFile:
+            startfile(url)
             system(url)
 
         
@@ -530,6 +545,7 @@ class CustomRev(QDialog):
         msg.setStandardButtons(QMessageBox.Cancel)
         x = msg.exec_()
         if msg.clickedButton() == openFile:
+            startfile(url)
             system(url)
 
 
@@ -545,10 +561,14 @@ class ShowAppointment(QDialog):
         self.today.clicked.connect(self.todayAppointment)
         self.tmr.clicked.connect(self.tmrAppointment)
         self.homeButton.clicked.connect(self.gotohome)
+        self.tableWidget.setColumnWidth(0,100)
+        self.tableWidget.setColumnWidth(1,250)
+        self.tableWidget.setColumnWidth(2,120)
+        self.tableWidget.setColumnWidth(3,125)
         
 
     def todayAppointment(self):
-        values = sql_connector.Appointment()
+        values = sql_connector.Appointmemt()
         values = values.todaysAppointment()
 
         row = 0
@@ -566,13 +586,13 @@ class ShowAppointment(QDialog):
 
 
         # Resize of the rows and columns based on the content
-        self.tableWidget.resizeColumnsToContents()
-        self.tableWidget.resizeRowsToContents()
+        # self.tableWidget.resizeColumnsToContents()
+        # self.tableWidget.resizeRowsToContents()
 
         self.tableWidget.show()
 
     def tmrAppointment(self):
-        values = sql_connector.Appointment()
+        values = sql_connector.Appointmemt()
         values = values.tmrAppointment()
         row = 0
         self.tableWidget.setRowCount(len(values))
@@ -584,9 +604,80 @@ class ShowAppointment(QDialog):
             row += 1
     
     def gotohome(self):
-        self.tableWidget.clear()
+        self.tableWidget.clearContents()
         widget.setCurrentIndex(0)
 
+
+class Report(QDialog):
+    def __init__(self):
+        super(Report,self).__init__() 
+        loadUi("report.ui",self)
+        self.home.clicked.connect(self.gotohome)
+        self.daily.clicked.connect(self.get_dailyreport)
+        self.monthly.clicked.connect(self.get_monthlyreport)
+        self.yearly.clicked.connect(self.get_yearlyreport)
+        self.all.clicked.connect(self.get_alltimereport)
+
+    def gotohome(self):
+        widget.setCurrentIndex(0)
+
+    def get_dailyreport(self):
+        url = sql_connector.PatientReport()
+        url = url.daily()
+        msg = QMessageBox()
+        msg.setWindowTitle("")
+        msg.setText("Daily report has been Generated")
+        msg.setIcon(QMessageBox.Information)
+        openFile = msg.addButton('Open File',QMessageBox.YesRole)
+        msg.setStandardButtons(QMessageBox.Cancel)
+        x = msg.exec_()
+        if msg.clickedButton() == openFile:
+            startfile(url)
+            system(url)
+
+    def get_monthlyreport(self):
+        url = sql_connector.PatientReport()
+        url = url.monthly()
+        msg = QMessageBox()
+        msg.setWindowTitle("")
+        msg.setText("Monthly report has been Generated")
+        msg.setIcon(QMessageBox.Information)
+        openFile = msg.addButton('Open File',QMessageBox.YesRole)
+        msg.setStandardButtons(QMessageBox.Cancel)
+        x = msg.exec_()
+        if msg.clickedButton() == openFile:
+            startfile(url)
+            system(url)
+
+    def get_yearlyreport(self):
+        url = sql_connector.PatientReport()
+        url = url.yearly()
+        msg = QMessageBox()
+        msg.setWindowTitle("")
+        msg.setText("Yearly report has been Generated")
+        msg.setIcon(QMessageBox.Information)
+        openFile = msg.addButton('Open File',QMessageBox.YesRole)
+        msg.setStandardButtons(QMessageBox.Cancel)
+        x = msg.exec_()
+        if msg.clickedButton() == openFile:
+            startfile(url)
+            system(url)
+
+    def get_alltimereport(self):
+        url = sql_connector.PatientReport()
+        url = url.allTime()
+        msg = QMessageBox()
+        msg.setWindowTitle("")
+        msg.setText("Patient report has been Generated")
+        msg.setIcon(QMessageBox.Information)
+        openFile = msg.addButton('Open File',QMessageBox.YesRole)
+        msg.setStandardButtons(QMessageBox.Cancel)
+        x = msg.exec_()
+        if msg.clickedButton() == openFile:
+            startfile(url)
+            system(url)
+
+    
 
 
 if __name__ == "__main__":
@@ -603,6 +694,7 @@ if __name__ == "__main__":
     revenue = Revenue()
     custom = CustomRev()
     show = ShowAppointment()
+    report = Report()
     #stacking Ui's
     widget.addWidget(mainwindow)    # index: 0   
     widget.addWidget(patient)       # index: 1
@@ -615,6 +707,7 @@ if __name__ == "__main__":
     widget.addWidget(revenue)       # index: 8
     widget.addWidget(custom)        # index: 9
     widget.addWidget(show)          # index: 10
+    widget.addWidget(report)        # index: 11
     widget.setFixedHeight(800)
     widget.setFixedWidth(1200)
     widget.show()
