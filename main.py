@@ -5,30 +5,43 @@
 # import time 
 # start = time.time()
 
+from datetime import datetime
 from sys import argv
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIntValidator, QIcon
-from PyQt5.QtWidgets import QCalendarWidget, QCheckBox, QDialog, QApplication, QFileDialog, QMessageBox, QTableWidgetItem
-from PyQt5.uic import loadUi
+from PyQt5.QtWidgets import QCalendarWidget, QApplication, QFileDialog, QMessageBox, QTableWidgetItem, QWidget
 import sql_connector
 from os import startfile, system
 
 
+## IMPORTING UI FILES
+from ui_main import Ui_Form as UImain
+from ui_case import Ui_Dialog as UIcase
+from ui_invoice import Ui_Dialog as UIinvoice
+from ui_custom import Ui_Dialog as UIcustom
+from ui_registerPatient import Ui_Dialog as UIregister
+from ui_report import Ui_Dialog as UIreport
+from ui_revenue import Ui_Dialog as UIrevenue
+from ui_search import Ui_Dialog as UIsearch
+from ui_showAppointments import Ui_Dialog as UIshow
+from ui_update import Ui_Dialog as UIupdate
+from ui_xray import Ui_Dialog as UIxray
+from ui_appointments import Ui_Dialog as UIappointments
 
 patient = 0
 
-class Main(QDialog):
-    def __init__(self):
-        super(Main,self).__init__() 
-        loadUi("main.ui",self)
+class Main(QWidget, UImain):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs) 
+        self.setupUi(self)
         icon = '001.png'
         self.setWindowIcon(QIcon(icon))
         self.revenue.clicked.connect(self.gotorevenue)
         self.case_2.clicked.connect(self.gotocase)
         self.appointments.clicked.connect(self.gotoshow)
         self.report.clicked.connect(self.gotoreport)
-        
+
 
         
     
@@ -46,10 +59,10 @@ class Main(QDialog):
 
     
    
-class Case(QDialog):
-    def __init__(self):
-        super(Case,self).__init__() 
-        loadUi("case.ui",self)
+class Case(QWidget, UIcase):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs) 
+        self.setupUi(self)
         self.new_case.clicked.connect(self.gotoregister)
         self.old_case.clicked.connect(self.gotosearch)
         self.homeButton.clicked.connect(self.gotohome)
@@ -68,12 +81,12 @@ class Case(QDialog):
 
 ## register patient using below class 
 
-class RegisterPatient(QDialog):
+class RegisterPatient(QWidget, UIregister):
     
 
-    def __init__(self):
-        super(RegisterPatient,self).__init__()
-        loadUi("registerPatient.ui", self)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs) 
+        self.setupUi(self)
         self.addButton.clicked.connect(self.insertToDatabase)
         self.backButton.clicked.connect(self.gotocase)
         validator = QIntValidator()
@@ -126,6 +139,7 @@ class RegisterPatient(QDialog):
         
     def xray(self):
         if patient.p_id != 0:
+            self.N_O.setCurrentIndex(0)
             self.name.clear()
             self.address.clear()
             self.history.clear()
@@ -145,25 +159,26 @@ class RegisterPatient(QDialog):
     #     print(i.text())
 
 
-class SearchIntoDatabase(QDialog):
+class SearchIntoDatabase(QWidget, UIsearch):
     
     
 
-    def __init__(self) :
-        super(SearchIntoDatabase,self).__init__()
-        loadUi("search.ui",self)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs) 
+        self.setupUi(self)
         self.back.clicked.connect(self.gotocase)
         self.updateDetails.clicked.connect(self.gotoupdate)
         self.searchButton.clicked.connect(self.search)
         self.nextButton.clicked.connect(self.getPatient)
-        self.nextButton.clicked.connect(self.xray)
+        validator = QIntValidator()
+        self.id.setValidator(validator)
 
         
         
 
     def search(self):
         try:
-            self.details = sql_connector.Patient.getPatient(int(self.id.text()))
+            self.details = sql_connector.Patient.getPatient(self.id.text())
             self.name.setText(self.details[1]) 
             self.phoneno.setText(str(self.details[2]))
             self.address.setText(self.details[3])
@@ -190,18 +205,56 @@ class SearchIntoDatabase(QDialog):
             self.address.clear()
             x = msg.exec_()
 
+        except:
+            msg = QMessageBox()
+            # msg.setWindowTitle("")
+            msg.setText("Something Went Wrong")
+            msg.setIcon(QMessageBox.Warning)
+            self.name.clear()
+            self.phoneno.clear()
+            self.address.clear()
+            x = msg.exec_()
+
         
 
     def getPatient(self):
         try:
+            if self.id.text() == '':
+                raise AttributeError
             global patient
             patient = sql_connector.Patient(self.details[1],self.details[2],self.details[3],self.details[4],self.N_O.currentText())
             patient.p_id = self.id.text()
             print(patient.p_id)
             patient.insertCase()
             print(self.N_O.currentText())
+
+            if patient.p_id != 0:
+                self.id.clear()
+                self.name.clear()
+                self.phoneno.clear()
+                self.address.clear()
+                self.N_O.setCurrentIndex(0)
+                GoToXray.gotoxray(self)
+
         except AttributeError:
-            print("something Went Wrong")
+            msg = QMessageBox()
+            msg.setWindowTitle("Not Found")
+            msg.setText("Patient ID block is empty")
+            msg.setIcon(QMessageBox.Warning)
+            self.name.clear()
+            self.phoneno.clear()
+            self.address.clear()
+            x = msg.exec_()
+
+        except:
+            msg = QMessageBox()
+            # msg.setWindowTitle("")
+            msg.setText("Something Went Wrong")
+            msg.setIcon(QMessageBox.Warning)
+            self.name.clear()
+            self.phoneno.clear()
+            self.address.clear()
+            x = msg.exec_()
 
     def gotocase(self):
         self.id.clear()
@@ -217,33 +270,22 @@ class SearchIntoDatabase(QDialog):
         self.address.clear()
         widget.setCurrentIndex(3)
 
-    def xray(self):
-        try:
-            if patient.p_id != 0:
-                self.id.clear()
-                self.name.clear()
-                self.phoneno.clear()
-                self.address.clear()
-                GoToXray.gotoxray(patient)
-            else:
-                print("failed to get id")
-        except:
-            print("error")
         
 class GoToXray():
     def gotoxray(self):
         widget.setCurrentIndex(4)
         
-class Xray(QDialog):
+class Xray(QWidget, UIxray):
 
-    def __init__(self) :
-        super(Xray,self).__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs) 
+        self.setupUi(self)
         self.address = ''
-        loadUi("xray.ui",self)
         self.browseButton.clicked.connect(self.openFileDialog)
         self.addButton.clicked.connect(self.addtoDatabase)
         self.nextButton.clicked.connect(self.gotoappointment)
-        self.skipButton.clicked.connect(self.gotoappointment)
+
+        self.added = False
 
         
 
@@ -257,6 +299,7 @@ class Xray(QDialog):
 
     def addtoDatabase(self):
         try:
+            self.added = True
             global patient
             patient.insertXray(self.address)
             print(patient.p_id)
@@ -264,15 +307,17 @@ class Xray(QDialog):
         except:
             print("error")
 
+        
+
 
     def gotoappointment(self):
         self.path.clear()
         widget.setCurrentIndex(5)   
         
-class UpdateIntoDatabase(QDialog):
-    def __init__(self) :
-        super(UpdateIntoDatabase,self).__init__()
-        loadUi("update.ui",self)
+class UpdateIntoDatabase(QWidget,UIupdate):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs) 
+        self.setupUi(self)
         self.backButton.clicked.connect(self.gotosearch)
         self.nameBox.stateChanged.connect(self.namecheckBoxChanged)
         self.phoneBox.stateChanged.connect(self.phonecheckBoxChanged)
@@ -352,14 +397,13 @@ class UpdateIntoDatabase(QDialog):
             msg.setIcon(QMessageBox.Information)
             x = msg.exec_()
     
-class Appointment(QDialog):
-    def __init__(self):
-        super(Appointment,self).__init__()
-        loadUi("appointment.ui",self)
+class Appointment(QWidget,UIappointments): 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs) 
+        self.setupUi(self)
         self.calander = self.findChild(QCalendarWidget, "calanderWidget")
         self.addButton.clicked.connect(self.bookAppointment)
         self.nextButton.clicked.connect(self.gotoinvoice)
-        self.skipButton.clicked.connect(self.gotoinvoice)
 
     def bookAppointment(self):
         date = self.calander.selectedDate().toPyDate()
@@ -369,14 +413,13 @@ class Appointment(QDialog):
 
     def gotoinvoice(self):
         # createInvoice.patientLabel.setText(f"Patient ID: {patient.getPatientId()}")
-        # self.calander.setCurrentPage(2021,7)
+        self.calander.showToday()
         widget.setCurrentIndex(6)
         
-class createInvoice(QDialog):
-    def __init__(self) :
-        # global patient
-        super(createInvoice,self).__init__()
-        loadUi("invoice.ui",self)
+class createInvoice(QWidget, UIinvoice):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs) 
+        self.setupUi(self)
         self.finishButton.clicked.connect(self.invoice)
         # self.patientLabel.setText(f"Patient ID: {patient.getPatientId()}")
         self.pendingButton.clicked.connect(self.get_amount)
@@ -385,6 +428,7 @@ class createInvoice(QDialog):
         self.consulting.setValidator(validator)
         self.pending.setValidator(validator)
         self.paid.setValidator(validator)
+        self.xray.setValidator(validator)
 
     def invoice(self):
         try:
@@ -462,10 +506,10 @@ class createInvoice(QDialog):
             x = msg.exec_()
             self.autofillButton.setChecked(False)
             
-class Revenue(QDialog):
-    def __init__(self) :
-        super(Revenue,self).__init__()
-        loadUi("revenue.ui",self)
+class Revenue(QWidget, UIrevenue):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs) 
+        self.setupUi(self)
         self.daily.clicked.connect(self.dailyRev)
         self.monthly.clicked.connect(self.monthlyRev)
         self.yearly.clicked.connect(self.yearlyRev)
@@ -522,10 +566,10 @@ class Revenue(QDialog):
     def gotohome(self):
         widget.setCurrentIndex(0)
         
-class CustomRev(QDialog):
-    def __init__(self) :
-        super(CustomRev,self).__init__()
-        loadUi("custom.ui",self)
+class CustomRev(QWidget, UIcustom):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs) 
+        self.setupUi(self)
         self.calander1 = self.findChild(QCalendarWidget, "date1")
         self.calander2 = self.findChild(QCalendarWidget, "date2")
         self.generate.clicked.connect(self.generateRev) 
@@ -550,14 +594,18 @@ class CustomRev(QDialog):
 
 
     def gotorev(self):
+        self.calander1.showToday()
+        self.calander2.showToday()
         widget.setCurrentIndex(8)
 
     def gotohome(self):
+        self.calander1.showToday()
+        self.calander2.showToday()
         widget.setCurrentIndex(0)
-class ShowAppointment(QDialog):
-    def __init__(self):
-        super(ShowAppointment,self).__init__() 
-        loadUi("showAppointments.ui",self)
+class ShowAppointment(QWidget, UIshow):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs) 
+        self.setupUi(self)
         self.today.clicked.connect(self.todayAppointment)
         self.tmr.clicked.connect(self.tmrAppointment)
         self.homeButton.clicked.connect(self.gotohome)
@@ -608,10 +656,10 @@ class ShowAppointment(QDialog):
         widget.setCurrentIndex(0)
 
 
-class Report(QDialog):
-    def __init__(self):
-        super(Report,self).__init__() 
-        loadUi("report.ui",self)
+class Report(QWidget, UIreport):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs) 
+        self.setupUi(self)
         self.home.clicked.connect(self.gotohome)
         self.daily.clicked.connect(self.get_dailyreport)
         self.monthly.clicked.connect(self.get_monthlyreport)
@@ -682,6 +730,7 @@ class Report(QDialog):
 
 if __name__ == "__main__":
     app = QApplication(argv)
+    app.setWindowIcon(QIcon("Icons/icon.ico"))
     mainwindow = Main()
     case = Case()
     patient = RegisterPatient() 
@@ -708,8 +757,8 @@ if __name__ == "__main__":
     widget.addWidget(custom)        # index: 9
     widget.addWidget(show)          # index: 10
     widget.addWidget(report)        # index: 11
-    widget.setFixedHeight(800)
-    widget.setFixedWidth(1200)
+    widget.setFixedHeight(799)
+    widget.setFixedWidth(899)
     widget.show()
     app.exec_()
     # end = time.time()
