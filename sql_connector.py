@@ -7,8 +7,8 @@ try:
     clinic_db = mysql.connector.connect(
         host = 'localhost',
         user = 'root',
-        password = '@-B&E^wEEgqSm9u3',
-        database = 'clinic'
+        password = 'YOUR_PASSWORD',
+        database = 'DATABASE'
     )
     mycursor = clinic_db.cursor()
 except:
